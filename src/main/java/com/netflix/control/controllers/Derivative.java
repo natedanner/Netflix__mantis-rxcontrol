@@ -21,7 +21,7 @@ import com.netflix.control.IController;
 public class Derivative extends IController {
 
     private double last = 0;
-    private boolean initialized = false;
+    private boolean initialized;
 
     @Override
     protected Double processStep(Double input) {

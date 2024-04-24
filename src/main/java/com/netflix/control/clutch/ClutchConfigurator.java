@@ -56,10 +56,10 @@ import rx.schedulers.Schedulers;
 @Slf4j
 public class ClutchConfigurator implements Observable.Transformer<Event, ClutchConfiguration> {
 
-    private static double DEFAULT_SETPOINT = 60.0;
-    private static Tuple2<Double, Double> DEFAULT_ROPE = Tuple.of(25.0, 0.00);
-    private static int DEFAULT_K = 1024;
-    private static double DEFAULT_QUANTILE = 0.99;
+    private static double defaultSetpoint = 60.0;
+    private static Tuple2<Double, Double> defaultRope = Tuple.of(25.0, 0.00);
+    private static int defaultK = 1024;
+    private static double defaultQuantile = 0.99;
 
     private IClutchMetricsRegistry metricsRegistry;
     private final Integer minSize;
@@ -73,12 +73,12 @@ public class ClutchConfigurator implements Observable.Transformer<Event, ClutchC
 
     private static ConcurrentHashMap<Clutch.Metric, UpdateDoublesSketch> sketches = new ConcurrentHashMap<>();
     static {
-        sketches.put(Clutch.Metric.CPU, UpdateDoublesSketch.builder().setK(DEFAULT_K).build());
-        sketches.put(Clutch.Metric.MEMORY, UpdateDoublesSketch.builder().setK(DEFAULT_K).build());
-        sketches.put(Clutch.Metric.NETWORK, UpdateDoublesSketch.builder().setK(DEFAULT_K).build());
-        sketches.put(Clutch.Metric.LAG, UpdateDoublesSketch.builder().setK(DEFAULT_K).build());
-        sketches.put(Clutch.Metric.DROPS, UpdateDoublesSketch.builder().setK(DEFAULT_K).build());
-        sketches.put(Clutch.Metric.UserDefined, UpdateDoublesSketch.builder().setK(DEFAULT_K).build());
+        sketches.put(Clutch.Metric.CPU, UpdateDoublesSketch.builder().setK(defaultK).build());
+        sketches.put(Clutch.Metric.MEMORY, UpdateDoublesSketch.builder().setK(defaultK).build());
+        sketches.put(Clutch.Metric.NETWORK, UpdateDoublesSketch.builder().setK(defaultK).build());
+        sketches.put(Clutch.Metric.LAG, UpdateDoublesSketch.builder().setK(defaultK).build());
+        sketches.put(Clutch.Metric.DROPS, UpdateDoublesSketch.builder().setK(defaultK).build());
+        sketches.put(Clutch.Metric.UserDefined, UpdateDoublesSketch.builder().setK(defaultK).build());
     }
 
     public ClutchConfigurator(IClutchMetricsRegistry metricsRegistry, Integer minSize, Integer maxSize, Observable<Long> timer) {
@@ -110,7 +110,7 @@ public class ClutchConfigurator implements Observable.Transformer<Event, ClutchC
         }
 
         Clutch.Metric metric = metrics.stream()
-                .max(Comparator.comparingDouble(a -> a.getValue().getQuantile(DEFAULT_QUANTILE)))
+                .max(Comparator.comparingDouble(a -> a.getValue().getQuantile(defaultQuantile)))
                 .map(Map.Entry::getKey)
                 .get();
         log.info("Determined dominant resource: {}", metric.toString());
@@ -126,10 +126,10 @@ public class ClutchConfigurator implements Observable.Transformer<Event, ClutchC
      * @return An appropriate setpoint for a controller to use for autoscaling.
      */
     private static double determineSetpoint(DoublesSketch metric) {
-        double quantile = metric.getQuantile(DEFAULT_QUANTILE);
-        double setPoint = quantile * (DEFAULT_SETPOINT / 100.0);
-        setPoint = setPoint == Double.NaN ? DEFAULT_SETPOINT : setPoint;
-        double bounded = bound(1.0, DEFAULT_SETPOINT, setPoint);
+        double quantile = metric.getQuantile(defaultQuantile);
+        double setPoint = quantile * (defaultSetpoint / 100.0);
+        setPoint = setPoint == Double.NaN ? defaultSetpoint : setPoint;
+        double bounded = bound(1.0, defaultSetpoint, setPoint);
         log.info("Determined quantile {} and setPoint of {} bounding to {}.", quantile, setPoint, bounded);
         return bounded;
     }
@@ -158,7 +158,7 @@ public class ClutchConfigurator implements Observable.Transformer<Event, ClutchC
                 .kd(0.01)
                 .minSize(this.minSize)
                 .maxSize(this.maxSize)
-                .rope(DEFAULT_ROPE)
+                .rope(defaultRope)
                 .cooldownInterval(5)
                 .cooldownUnits(TimeUnit.MINUTES)
                 .build();
@@ -171,13 +171,13 @@ public class ClutchConfigurator implements Observable.Transformer<Event, ClutchC
     private ClutchConfiguration getPinHighConfig() {
         return new ClutchConfiguration.ClutchConfigurationBuilder()
                 .metric(Clutch.Metric.CPU)
-                .setPoint(DEFAULT_SETPOINT)
+                .setPoint(defaultSetpoint)
                 .kp(0.01)
                 .ki(0.01)
                 .kd(0.01)
                 .minSize(this.maxSize)
                 .maxSize(this.maxSize)
-                .rope(DEFAULT_ROPE)
+                .rope(defaultRope)
                 .cooldownInterval(5)
                 .cooldownUnits(TimeUnit.MINUTES)
                 .build();
@@ -209,7 +209,7 @@ public class ClutchConfigurator implements Observable.Transformer<Event, ClutchC
                 .filter(event -> event != null && event.metric != null)
                 .map(event -> {
                     UpdateDoublesSketch sketch = sketches.computeIfAbsent(event.metric, metric ->
-                            UpdateDoublesSketch.builder().setK(DEFAULT_K).build());
+                            UpdateDoublesSketch.builder().setK(defaultK).build());
                     sketch.update(event.value);
                     return null;
                 }) // Encourages RxJava to actually consume events.

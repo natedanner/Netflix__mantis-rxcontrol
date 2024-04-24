@@ -88,7 +88,7 @@ public class ClutchExperimental implements Observable.Transformer<Event, Object>
     public ClutchExperimental(IActuator actuator, Integer currentSize, Integer minSize, Integer maxSize,
                               Observable<Integer> sizeObs, Observable<Long> timer, long initialConfigMillis, long coolDownSeconds) {
 
-        this(actuator, currentSize, minSize, maxSize, sizeObs, timer, initialConfigMillis, (sketches) -> {
+        this(actuator, currentSize, minSize, maxSize, sizeObs, timer, initialConfigMillis, sketches -> {
             double setPoint = 0.6 * sketches.get(Clutch.Metric.RPS).getQuantile(0.99);
             Tuple2<Double, Double> rope = Tuple.of(setPoint * 0.15, 0.0);
 

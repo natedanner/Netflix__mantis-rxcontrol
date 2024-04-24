@@ -30,15 +30,15 @@ import rx.Observable;
  */
 public class ExampleAutoScaler implements Observable.Transformer<Double, Double> {
 
-    private Double setPoint = 65.0;
-    private Double rope = 5.0;
+    private final Double setPoint = 65.0;
+    private final Double rope = 5.0;
 
-    private double kp = 0.01;
-    private double ki = 0.01;
-    private double kd = 0.01;
+    private final double kp = 0.01;
+    private final double ki = 0.01;
+    private final double kd = 0.01;
 
-    private double min = 1.0;
-    private double max = 10.0;
+    private final double min = 1.0;
+    private final double max = 10.0;
 
     @Override
     public Observable<Double> call(Observable<Double> cpuMeasurements) {

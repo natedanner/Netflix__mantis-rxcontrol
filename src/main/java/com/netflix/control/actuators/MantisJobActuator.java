@@ -29,7 +29,7 @@ public class MantisJobActuator extends IActuator {
 
     private final String jobId;
     private final Integer stageNumber;
-    private static Logger logger = LoggerFactory.getLogger(MantisJobActuator.class);
+    private static final Logger logger = LoggerFactory.getLogger(MantisJobActuator.class);
 
     private Long lastValue = Long.MIN_VALUE;
 

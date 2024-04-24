@@ -56,8 +56,8 @@ public class Integrator extends IController {
     @Override
     protected Double processStep(Double input) {
         double newSum = this.sum + input;
-        newSum = (newSum > max) ? max : newSum;
-        newSum = (newSum < min) ? min : newSum;
+        newSum = newSum > max ? max : newSum;
+        newSum = newSum < min ? min : newSum;
         this.sum = decayFactor * newSum;
         return newSum;
     }

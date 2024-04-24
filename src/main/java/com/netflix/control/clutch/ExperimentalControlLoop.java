@@ -117,9 +117,7 @@ public class ExperimentalControlLoop implements Observable.Transformer<Event, Do
                 .doOnNext(scale -> this.currentSize.set(Math.round(Math.ceil(scale))))
                 .doOnNext(__ -> deltaIntegrator.setSum(0))
                 .doOnNext(__ -> cooldownTimestamp.set(System.currentTimeMillis()))
-                .doOnUnsubscribe(() -> {
-                    sizeSub.unsubscribe();
-                });
+                .doOnUnsubscribe(sizeSub::unsubscribe);
     }
 
     /* For testing to trigger actuator on next event */
